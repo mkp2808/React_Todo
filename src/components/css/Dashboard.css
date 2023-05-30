@@ -1,0 +1,65 @@
+
+
+.insert-btn {
+    font-size: 25px;
+    color: white;
+    padding: 4px 0;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.20) 1.95px 1.95px 2.6px;
+    border: none;
+    width: 300px;
+    background-color: rgb(212, 52, 52);
+}
+
+.insert-btn:hover {
+    background-color: rgb(200, 52, 52);
+}
+
+.insert-btn,
+input:focus {
+    border: none;
+    outline: none;
+}
+
+.todo-item {
+    cursor: grab;
+    width: 300px;
+    height: 20vh;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    background-color: rgb(243, 255, 139);
+}
+
+.todo-item:active {
+    cursor: grabbing;
+}
+
+.header {
+    font-size: 13px;
+}
+
+.date {
+    text-align: end;
+}
+
+.data {
+    font-size: 20px;
+}
+
+.addNewTodo{
+    margin: 30px;
+    font-size: 25px;
+    color: white;
+    padding: 4px 0;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.20) 1.95px 1.95px 2.6px;
+    border: none;
+    width: 300px;
+    background-color: rgb(0, 173, 0);
+}
+
+.card-ico{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
