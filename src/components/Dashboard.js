@@ -4,7 +4,7 @@ import { ApiList, BASE_URL } from '../util/Api/ApiList';
 import { useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleCheck, faPlane, faTicket } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
@@ -19,13 +19,17 @@ function Dashboard() {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const [show, setShow] = useState(false);
+  // Add new todo modal
+  const [showAddNewTodo, setShowAddNewTodo] = useState(false);
+  const handleCloseAddNewTodo = () => setShowAddNewTodo(false);
+  const handleShowAddNewTodo = () => setShowAddNewTodo(true);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  // show options modal
+  const [showCardOptions, setShowCardOptions] = useState(false);
+  const handleCloseCardOptions = () => setShowCardOptions(false);
+  const handleShowCardOptions = () => setShowCardOptions(true);
 
   const [image, setImage] = useState("")
-  const [imagePath, setImagePath] = useState("")
   const [name, setName] = useState("")
   const [status, setstatus] = useState("")
   const [period, setPeriod] = useState("")
@@ -33,15 +37,7 @@ function Dashboard() {
 
   const [loading, setLoading] = useState(false)
 
-  // navigate to login || apicall
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-    else {
-      apiCall();
-    }
-  }, [])
+
 
   // Actual api 
   const apiCall = async () => {
@@ -70,12 +66,20 @@ function Dashboard() {
     }
   }
 
-
+  // navigate to login || apicall
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+    else {
+      apiCall();
+    }
+    // eslint-disable-next-line 
+  }, [])
 
   // Getting data from the input
   const handleImage = (e) => {
 
-    setImagePath(e.target.value);
     setImage(e.target.files[0]);
   }
   const handleName = (e) => {
@@ -89,6 +93,39 @@ function Dashboard() {
   }
   const handleDate = (e) => {
     setDate(e.target.value)
+  }
+
+  const [id, setId] = useState("")
+
+  const handleCardClick = (id) => {
+    setId(id);
+    handleShowCardOptions();
+  }
+
+  try {
+  var handleEdit = () => {
+      console.log(id)
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  try {
+    var handleDelete = () => {
+
+      // console.log(id);
+      fetch(`${BASE_URL+ApiList.delete}?_id=${id}`, DELETE)
+        .then(response => response.text())
+        .then(result => {
+          console.log(result)
+          handleCloseCardOptions()
+          apiCall();
+          setId("");
+        })
+        .catch(error => console.log('error', error));
+    }
+  } catch (error) {
+    console.log(error);
   }
 
   // Hndling the submit event 
@@ -109,8 +146,8 @@ function Dashboard() {
       valid = false;
 
     if (valid) {
-      AddTodoApiCall(image, imagePath, name, status, date, period);
-      handleClose();
+      AddTodoApiCall(image, name, status, date, period);
+      handleCloseAddNewTodo();
     }
     else {
       alert("Enter detials properly");
@@ -120,67 +157,34 @@ function Dashboard() {
 
 
   // new Data api
-  const AddTodoApiCall = async (image, imagePath, name, status, date, period) => {
+  const AddTodoApiCall = async (image, name, status, date, period) => {
     setLoading(true)
-    // var myHeaders = new Headers();
-    // myHeaders.append("Authorization", `Bearer ${token}`);
-    // console.log(image)
-    // var formdata = new FormData();
-    // formdata.append("document", image, imagePath);
-    // formdata.append("text", name);
-    // formdata.append("todostatus", status);
-    // formdata.append("date", date);
-    // formdata.append("period", period);
-    // formdata.append("status", status);
-
-    // var requestOptions = {
-    //   method: 'POST',
-    //   headers: myHeaders,
-    //   body: formdata,
-    //   redirect: 'follow'
-    // };
-
-    // fetch(BASE_URL + ApiList.save, requestOptions)
-    //   .then(response => response.text())
-    //   .then(result => console.log(result))
-    //   .catch(error => console.log('error', error));
-    // console.log("in handle".location.state.status);
     const formData = new FormData();
-    formData.append("userImage", image, imagePath);
+    formData.append("document", image);
     formData.append("text", name);
     formData.append("todostatus", status);
     formData.append("date", date);
     formData.append("period", period);
     formData.append("status", status);
 
-    // console.log("form data in client", image.name);
-    // console.log("Image Name", image.name);
-    // try {
-    //     const res = await axios.post(BASE_URL+apiList.save, {
-    //         text: todoname,
-    //         todostatus: todostatus,
-    //         date: date,
-    //         period: period,
-    //         status: todostatus,
-    //         // image: formData
-    //     },
     try {
       const res = await axios.post(BASE_URL + ApiList.save, formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("addtodoclg", res.data.status);
-      if (res.data.status == 200) {
-        navigate("/");
+      if (res.data.status === 200) {
+        // navigate("/");
+        await apiCall();
         setLoading(false)
         alert('ToDo Added Successfully');
 
       }
     }
     catch (err) {
-      if (err.response.status == 400) {
+      if (err.response.status === 400) {
         alert(err.response.data.message);
       }
-      else if (err.response.status == 401) {
+      else if (err.response.status === 401) {
         alert(err.response.data);
         navigate('/login')
       }
@@ -197,11 +201,11 @@ function Dashboard() {
 
       <h1 className='text-center m-5'>ToDo List</h1>
 
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
 
       {/* Button */}
       <div className="d-flex justify-content-center">
-        <button className="addNewTodo" onClick={handleShow}>
+        <button className="addNewTodo" onClick={handleShowAddNewTodo}>
           Add New Todo +
         </button>
       </div>
@@ -213,12 +217,13 @@ function Dashboard() {
               <button className='insert-btn mb-3 mx-2 '>{item.status}</button>
               {/* drag & drop */}
 
-
-              <div className="data">
+              <div className="data" >
                 {item.data.map((todo, i) => {
-                  return (<div key={i} className='mx-2 todo-item position-relative user-select-none '>
-                    {/* {console.log(item.data)} */}
+                  return (<div key={i} onClick={() => handleCardClick(todo._id)} className='mx-2 my-3 py-2 px-3 todo-item position-relative  user-select-none '>
+                    {/* {console.log(todo._id+todo.text)} */}
 
+
+                    {/* <i class="fa-light fa-ellipsis-vertical"></i> */}
                     <div className='header d-flex justify-content-between'>
                       {item.status === "Completed" ? <FontAwesomeIcon icon={faCircleCheck} /> :
                         <>
@@ -231,12 +236,12 @@ function Dashboard() {
                         {moment(Date()).utc().format('YYYY-MM-DD') === moment(todo.date).utc().format('YYYY-MM-DD') ? "Today" : `Due : ${moment(todo.date).utc().format('YYYY-MM-DD')}`}
                       </span>
                     </div>
-                    <div className="  d-flex justify-content-between position-absolute bottom-0">
-                      <span className='my-auto'>
-                        <p className='data  text-center' >{todo.text}</p>
+                    <div className='w-100 h-100 data row position-absolute bottom-0 '>
+                      <span className="my-auto  col-6">
+                        {todo.text}
                       </span>
-                      <span>
-                        <img className='card-ico  ' src={BASE_URL + todo.image} />
+                      <span className="my-auto text-center col-6">
+                        <img className='card-ico ' src={BASE_URL + todo.image} alt='ico' />
                       </span>
                     </div>
                   </div>)
@@ -249,7 +254,22 @@ function Dashboard() {
       </div >
 
 
-      <Modal show={show} onHide={handleClose}>
+      {/* options */}
+      <Modal show={showCardOptions} onHide={handleCloseCardOptions}>
+        <Modal.Header closeButton>
+          <Modal.Title>Options</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex my-3 justify-content-around card-options  ">
+            <button onClick={() => handleEdit()}><FontAwesomeIcon size='3x' className='cursor-pointer' icon={faEdit} /></button>
+            <button onClick={() => handleDelete()}><FontAwesomeIcon size='3x' className='cursor-pointer' icon={faTrash} /></button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+
+      {/* add new todo */}
+      <Modal show={showAddNewTodo} onHide={handleCloseAddNewTodo}>
         <Modal.Header closeButton>
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
@@ -294,7 +314,7 @@ function Dashboard() {
             </div>
 
             <div className='d-flex justify-content-end'>
-              <Button className='mx-2' variant="secondary" onClick={() => handleClose()}>
+              <Button className='mx-2' variant="secondary" onClick={() => handleCloseAddNewTodo()}>
                 Close
               </Button>
               <button className='btn btn-primary mx-3' type='submit' variant="primary" onClick={(e) => handleSubmit(e)}>

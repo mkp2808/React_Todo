@@ -22,24 +22,16 @@ input:focus {
 }
 
 .todo-item {
-    cursor: grab;
+    /* cursor: grab; */
     width: 300px;
     height: 20vh;
     border-radius: 10px;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-    background-color: rgb(243, 255, 139);
-}
-
-.todo-item:active {
-    cursor: grabbing;
+    background-color: rgb(241, 255, 119);
 }
 
 .header {
     font-size: 13px;
-}
-
-.date {
-    text-align: end;
 }
 
 .data {
@@ -62,4 +54,17 @@ input:focus {
     height: 50px;
     width: 50px;
     border-radius: 50%;
+}
+
+.moreOptions
+{
+    margin-right: 5px;
+    color: rgb(0, 0, 0);
+    cursor: pointer;    
+}
+
+
+.card-options button{
+    border: none;
+    background-color:rgba(0, 0, 0, 0);
 }
