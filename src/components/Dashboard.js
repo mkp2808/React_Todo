@@ -114,7 +114,7 @@ function Dashboard() {
     var handleDelete = () => {
 
       // console.log(id);
-      fetch(`${BASE_URL+ApiList.delete}?_id=${id}`, DELETE)
+      fetch(`${BASE_URL+ApiList.delete}?_id=${id}`, {"method":DELETE})
         .then(response => response.text())
         .then(result => {
           console.log(result)
