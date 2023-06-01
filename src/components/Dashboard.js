@@ -11,7 +11,6 @@ import axios from 'axios';
 import Spinner from '../spinner';
 
 
-
 function Dashboard() {
 
 
@@ -37,34 +36,8 @@ function Dashboard() {
 
   const [loading, setLoading] = useState(false)
 
+  const [cardCount, setCardCount] = useState(0)
 
-
-  // Actual api 
-  const apiCall = async () => {
-    try {
-      // console.log(token);
-      const api = await fetch(BASE_URL + ApiList.getStatus, {
-        headers: {
-          "authorization": `Bearer ${token}`
-        }
-      })
-      const response = await api.json()
-      setLoading(true)
-      if (!response.success) {
-        navigate('/login')
-        // localStorage.removeItem("token")
-        console.log(response.data.data);
-      } else {
-        setdata(response.data.data)
-      }
-      if (response.success) {
-        setLoading(false)
-      }
-      // console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   // navigate to login || apicall
   useEffect(() => {
@@ -103,8 +76,30 @@ function Dashboard() {
   }
 
   try {
-  var handleEdit = () => {
-      console.log(id)
+    var handleEdit = () => {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${token}`);
+
+      var raw = JSON.stringify({
+        "text": "Katch Trip",
+        "status": "Not Started",
+        "date": "2023-06-02",
+        "_id": id,
+        "period": "Afternoon"
+      });
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      };
+
+      fetch(BASE_URL + ApiList.update, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
     }
   } catch (error) {
     console.log(error);
@@ -114,7 +109,7 @@ function Dashboard() {
     var handleDelete = () => {
 
       // console.log(id);
-      fetch(`${BASE_URL+ApiList.delete}?_id=${id}`, {"method":DELETE})
+      fetch(`${BASE_URL + ApiList.delete}?_id=${id}`, { "method": 'delete' })
         .then(response => response.text())
         .then(result => {
           console.log(result)
@@ -155,7 +150,6 @@ function Dashboard() {
 
   }
 
-
   // new Data api
   const AddTodoApiCall = async (image, name, status, date, period) => {
     setLoading(true)
@@ -176,7 +170,7 @@ function Dashboard() {
         // navigate("/");
         await apiCall();
         setLoading(false)
-        alert('ToDo Added Successfully');
+        // alert('ToDo Added Successfully');
 
       }
     }
@@ -194,65 +188,93 @@ function Dashboard() {
 
   }
 
+
+  // Actual api 
+  const apiCall = async () => {
+    try {
+      // console.log(token);
+      setLoading(true)
+      const api = await fetch(BASE_URL + ApiList.getStatus, {
+        headers: {
+          "authorization": `Bearer ${token}`
+        }
+      })
+      const response = await api.json()
+      setCardCount(response.data.count);
+      if (!response.success) {
+        navigate('/login')
+        // localStorage.removeItem("token")
+        console.log(response.data.data);
+      } else {
+        setdata(response.data.data)
+      }
+      if (response.success) {
+        setLoading(false)
+      }
+      // console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+
   return (
     <>
 
 
+      {loading && <Spinner />}
+      {!loading &&
+        <>
+          {/* Button */}
+          <div className="d-flex my-5 justify-content-around">
+            <h2 className=''>Remaining Tasks : {cardCount}</h2>
+            <button className="addNewTodo" onClick={handleShowAddNewTodo}>
+              Add Todo +
+            </button>
+          </div>
+          {/* card */}
+          <div className="d-inline-flex">
+            {data.map((item, i) => {
+              return (
+                <div key={i}>
+                  <button className='insert-btn mb-3 mx-2 '>{item.status}</button>
+                  {/* drag & drop */}
 
-      <h1 className='text-center m-5'>ToDo List</h1>
-
-      {/* {loading && <Spinner />} */}
-
-      {/* Button */}
-      <div className="d-flex justify-content-center">
-        <button className="addNewTodo" onClick={handleShowAddNewTodo}>
-          Add New Todo +
-        </button>
-      </div>
-      {/* card */}
-      <div className="d-inline-flex">
-        {data.map((item, i) => {
-          return (
-            <div key={i}>
-              <button className='insert-btn mb-3 mx-2 '>{item.status}</button>
-              {/* drag & drop */}
-
-              <div className="data" >
-                {item.data.map((todo, i) => {
-                  return (<div key={i} onClick={() => handleCardClick(todo._id)} className='mx-2 my-3 py-2 px-3 todo-item position-relative  user-select-none '>
-                    {/* {console.log(todo._id+todo.text)} */}
+                  <div className="data" >
+                    {item.data.map((todo, i) => {
+                      return (<div key={i} onClick={() => handleCardClick(todo._id)} className='mx-2 my-3 py-2 px-3 todo-item position-relative  user-select-none '>
+                        {console.log(todo._id + todo.text)}
 
 
-                    {/* <i class="fa-light fa-ellipsis-vertical"></i> */}
-                    <div className='header d-flex justify-content-between'>
-                      {item.status === "Completed" ? <FontAwesomeIcon icon={faCircleCheck} /> :
-                        <>
-                          <span className="complete-by">
-                            {todo.period}
+                        {/* <i class="fa-light fa-ellipsis-vertical"></i> */}
+                        <div className='header my-3 d-flex justify-content-between'>
+                          {todo.text}
+                          <span className="date">
+                            {moment(Date()).utc().format('YYYY-MM-DD') === moment(todo.date).utc().format('YYYY-MM-DD') ? "Today" : `Due : ${moment(todo.date).utc().format('YYYY-MM-DD')}`}
                           </span>
-                        </>
-                      }
-                      <span className="date">
-                        {moment(Date()).utc().format('YYYY-MM-DD') === moment(todo.date).utc().format('YYYY-MM-DD') ? "Today" : `Due : ${moment(todo.date).utc().format('YYYY-MM-DD')}`}
-                      </span>
-                    </div>
-                    <div className='w-100 h-100 data row position-absolute bottom-0 '>
-                      <span className="my-auto  col-6">
-                        {todo.text}
-                      </span>
-                      <span className="my-auto text-center col-6">
-                        <img className='card-ico ' src={BASE_URL + todo.image} alt='ico' />
-                      </span>
-                    </div>
-                  </div>)
-                })}
-              </div>
+                        </div>
+                        <div className=" d-flex my-4 justify-content-between ">
 
-            </div>
-          )
-        })}
-      </div >
+                          <span className="complete-by">
+                            {item.status === "Completed" ? <FontAwesomeIcon icon={faCircleCheck} /> :
+                              <>
+                                {todo.period}
+                              </>
+                            }
+                          </span>
+                          <img className='card-ico ' src={BASE_URL + todo.image} alt='ico' />
+                        </div>
+                      </div>)
+                    })}
+                  </div>
 
+                </div>
+              )
+            })}
+          </div >
+
+        </>}
 
       {/* options */}
       <Modal show={showCardOptions} onHide={handleCloseCardOptions}>
@@ -271,6 +293,64 @@ function Dashboard() {
       {/* add new todo */}
       <Modal show={showAddNewTodo} onHide={handleCloseAddNewTodo}>
         <Modal.Header closeButton>
+          <Modal.Title>Modal heading</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <div className="form-group mb-3 mx-3">
+              <label htmlFor="image">Enter image</label>
+              <input type="file" className="form-control" accept='image/*' id="image" required onChange={(e) => handleImage(e)} />
+            </div>
+
+            <div className="form-group mb-3 mx-3">
+              <label htmlFor="todo">Enter Todo Title</label>
+              <input type="text" className="form-control" id="todo" placeholder="Todo" required onBlur={(e) => handleName(e)} />
+            </div>
+            <div className="form-group mb-3 mx-3">
+              <label htmlFor="status">Status</label>
+              <select className="form-control" id="status" required onBlur={(e) => handleStatus(e)}>
+                <option value="">please select status</option>
+                {
+                  data.map(
+                    (item, i) => {
+                      return (
+                        <option key={i} value={item.status}>{item.status}</option>
+                      )
+                    })}
+
+              </select>
+            </div>
+            <div className="form-group mb-3 mx-3">
+              <label htmlFor="period">Period</label>
+              <select className="form-control" id="period" required onBlur={(e) => handlePeriod(e)} >
+                <option value="">please select period</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+                <option>Night</option>
+              </select>
+            </div>
+            <div className="form-group mb-3 mx-3">
+              <label htmlFor="date">Example textarea</label>
+              <input type='date' required onBlur={(e) => handleDate(e)} className="form-control" min={moment(new Date()).format('YYYY-MM-DD')} id="date"></input>
+            </div>
+
+            <div className='d-flex justify-content-end'>
+              <Button className='mx-2' variant="secondary" onClick={() => handleCloseAddNewTodo()}>
+                Close
+              </Button>
+              <button className='btn btn-primary mx-3' type='submit' variant="primary" onClick={(e) => handleSubmit(e)}>
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+      
+      <Modal show={showAddNewTodo} onHide={handleCloseAddNewTodo}>
+        <Modal.Header closeButton>
+      
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
         <Modal.Body>
