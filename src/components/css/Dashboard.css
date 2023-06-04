@@ -47,6 +47,11 @@ input:focus {
     background-color: rgb(0, 173, 0);
 }
 
+
+.addNewTodo:hover {
+    background-color: rgb(0, 165, 0);
+}
+
 .addNewTodo:active {
     outline: none;
 }

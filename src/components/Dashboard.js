@@ -28,11 +28,58 @@ function Dashboard() {
   const handleCloseCardOptions = () => setShowCardOptions(false);
   const handleShowCardOptions = () => setShowCardOptions(true);
 
+  // show options modal
+  const [showUpdate, setShowUpdate] = useState(false);
+  const handleCloseUpdate = () => setShowUpdate(false);
+  const handleShowUpdate = () => setShowUpdate(true);
+
+  //Initial
   const [image, setImage] = useState("")
   const [name, setName] = useState("")
   const [status, setstatus] = useState("")
   const [period, setPeriod] = useState("")
   const [date, setDate] = useState("")
+
+  // Updated 
+  const [nameUpdated, setNameUpdated] = useState("")
+  const [statusUpdated, setstatusUpdated] = useState("")
+  const [periodUpdated, setPeriodUpdated] = useState("")
+  const [dateUpdated, setDateUpdated] = useState("")
+
+  const [updatedData, setupdatedData] = useState()
+
+  const setTextToTextBox = () => {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({
+      "_id": id
+    });
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+
+    fetch(BASE_URL + ApiList.settexttotextbox, requestOptions)
+      .then(response => response.text())
+      .catch(error => console.log('error', error));
+
+      
+    
+    
+  }
+
+
+
+
+
+
+
+
+
 
   const [loading, setLoading] = useState(false)
 
@@ -251,7 +298,7 @@ function Dashboard() {
                         <div className='header my-3 d-flex justify-content-between'>
                           {todo.text}
                           <span className="date">
-                            {moment(Date()).utc().format('YYYY-MM-DD') === moment(todo.date).utc().format('YYYY-MM-DD') ? "Today" : `Due : ${moment(todo.date).utc().format('YYYY-MM-DD')}`}
+                            {moment(Date()).utc().format('YYYY-MM-DD') === moment(todo.date).utc().format('YYYY-MM-DD') ? "Today" : `Due : ${moment(todo.date).utc().format('DD-MM-YYYY')}`}
                           </span>
                         </div>
                         <div className=" d-flex my-4 justify-content-between ">
@@ -347,18 +394,14 @@ function Dashboard() {
         </Modal.Body>
       </Modal>
 
-      
-      <Modal show={showAddNewTodo} onHide={handleCloseAddNewTodo}>
+
+      <Modal show={showUpdateTodo} onHide={handleCloseAddNewTodo}>
         <Modal.Header closeButton>
-      
+
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form>
-            <div className="form-group mb-3 mx-3">
-              <label htmlFor="image">Enter image</label>
-              <input type="file" className="form-control" accept='image/*' id="image" required onChange={(e) => handleImage(e)} />
-            </div>
 
             <div className="form-group mb-3 mx-3">
               <label htmlFor="todo">Enter Todo Title</label>
@@ -394,10 +437,10 @@ function Dashboard() {
             </div>
 
             <div className='d-flex justify-content-end'>
-              <Button className='mx-2' variant="secondary" onClick={() => handleCloseAddNewTodo()}>
+              <Button className='mx-2' variant="secondary" onClick={() => handleCloseUpdateTodo()}>
                 Close
               </Button>
-              <button className='btn btn-primary mx-3' type='submit' variant="primary" onClick={(e) => handleSubmit(e)}>
+              <button className='btn btn-primary mx-3' type='submit' variant="primary" onClick={(e) => handleUpdateSubmit(e)}>
                 Save Changes
               </button>
             </div>
