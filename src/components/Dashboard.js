@@ -336,7 +336,7 @@ function Dashboard() {
         </Modal.Body>
       </Modal>
 
-
+ 
       {/* add new todo */}
       <Modal show={showAddNewTodo} onHide={handleCloseAddNewTodo}>
         <Modal.Header closeButton>
